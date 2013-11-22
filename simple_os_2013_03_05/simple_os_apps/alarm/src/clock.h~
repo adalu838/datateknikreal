@@ -32,7 +32,10 @@ void time_from_alarm_message(char message[], int *hours, int *minutes, int *seco
 int time_ok(int hours, int minutes, int seconds);
 
 // Check if alarm is enabled
-int check_if_enable(int *enable);
+void enable_alarm(void);
+
+// Check if alarm is enabled
+void alarm_wait(void);
 
 // Reset and disable alarm
 void reset_alarm(void);

@@ -79,11 +79,10 @@ void set_alarm(int hours, int minutes, int seconds)
  
     Clock.alarm_time.hours = hours; 
     Clock.alarm_time.minutes = minutes; 
-    Clock.alarm_time.seconds = seconds; 
+    Clock.alarm_time.seconds = seconds;
+	Clock.alarm_enabled = 1;
 
     si_sem_signal(&Clock.Mutex);
-
-    si_sem_signal(&Clock.start_alarm);
 } 
 
 /* increment_time: increments the current time with 
@@ -143,7 +142,7 @@ void increment_alarm(void)
 }
 
 /* get_time: read time from common clock variables */ 
-void get_time(int *hours, int *minutes, int *seconds)
+void get_time(int *hours, int *minutes, int *seconds, int *enable)
 {
     /* reserve clock variables  */
     si_sem_wait(&Clock.Mutex); 
@@ -152,6 +151,7 @@ void get_time(int *hours, int *minutes, int *seconds)
     *hours = Clock.time.hours; 
     *minutes = Clock.time.minutes; 
     *seconds = Clock.time.seconds;
+	*enable = Clock.alarm_enabled;
         
     /* release clock variables */ 
     si_sem_signal(&Clock.Mutex); 
@@ -192,16 +192,20 @@ int time_ok(int hours, int minutes, int seconds)
 }
 
 // Check if alarm enabled
-void check_if_enable(int *enable)
+void enable_alarm(void)
+{
+	si_sem_signal(&Clock.start_alarm);
+}
+
+void alarm_wait(void)
 {
 	si_sem_wait(&Clock.start_alarm);
-	*enable = Clock.alarm_enabled;
-	si_sem_signal(&Clock.start_alarm);
 }
 
 // Reset and disable alarm
 void reset_alarm(void)
 {
-	si_sem_wait(&Clock.start_alarm);
+	si_sem_wait(&Clock.Mutex);
 	Clock.alarm_enabled = 0;
+	si_sem_wait(&Clock.Mutex);
 }

@@ -17,7 +17,7 @@ void increment_time(void);
 void increment_alarm(void);
 
 /* get_time: read time from common clock variables */ 
-void get_time(int *hours, int *minutes, int *seconds);
+void get_time(int *hours, int *minutes, int *seconds, int *enable);
 
 /* get_alarm_time: read time from common alarm clock variables */ 
 void get_alarm_time(int *hours, int *minutes, int *seconds);
@@ -32,7 +32,10 @@ void time_from_alarm_message(char message[], int *hours, int *minutes, int *seco
 int time_ok(int hours, int minutes, int seconds);
 
 // Check if alarm is enabled
-void check_if_enable(int *enable);
+void enable_alarm(void);
+
+// Check if alarm is enabled
+void alarm_wait(void);
 
 // Reset and disable alarm
 void reset_alarm(void);

@@ -34,20 +34,25 @@ void clock_task(void)
 
     si_time next_time;
     /* local copies of the current time */ 
-    int hours, minutes, seconds; 
+    int alarm_hours, alarm_minutes, alarm_seconds, hours, minutes, seconds, enable; 
     si_get_current_time(&next_time);
     /* infinite loop */ 
     while (1)
     {
-        /* read and display current time */ 
-		get_time(&hours, &minutes, &seconds); 
-		display_time(hours, minutes, seconds); 
-
-        /* increment time */ 
+        /* increment time */
+		//printf("%d\n",1);
 		increment_time();
-		
-		si_time_add_n_ms(&next_time,1000);
 
+        /* read and display current time */ 
+		get_time(&hours, &minutes, &seconds, &enable);
+		get_alarm_time(&alarm_hours, &alarm_minutes, &alarm_seconds);
+		display_time(hours, minutes, seconds);
+		
+		if (enable && alarm_hours == hours && alarm_minutes == minutes && alarm_seconds == seconds)
+		{
+			enable_alarm();
+		}
+		si_time_add_n_ms(&next_time,1000);
         /* wait one second */ 
 		si_wait_until_time(&next_time);
     }
@@ -56,28 +61,15 @@ void clock_task(void)
 /* alarm_task: alarm task */ 
 void alarm_task(void) 
 {
-
-    si_time next_time;
-    /* local copies of the alarm time */ 
-    int alarm_hours, alarm_minutes, alarm_seconds, hours, minutes, seconds, enable;
-
-    si_get_current_time(&next_time);
     /* infinite loop */ 
     while (1)
     {	
-	erase_alarm_text();	
-	get_alarm_time(&alarm_hours, &alarm_minutes, &alarm_seconds);
-	get_time(&hours, &minutes, &seconds);
+	alarm_wait();
 
-	if (enable && alarm_hours == hours && alarm_minutes == minutes && alarm_seconds == seconds)
-	{ 
-        display_alarm_text();
-		increment_alarm();
-	}
-	check_if_enable(&enable);
+    display_alarm_text();
+	increment_alarm();
     /* wait one second */ 
-	si_time_add_n_ms(&next_time, 1000);
-    si_wait_until_time(&next_time); 
+	si_wait_n_ms(1000);
     }
 }
 
@@ -117,7 +109,7 @@ void set_task(void)
 	    if (time_ok(hours, minutes, seconds))
             {
                 set_alarm(hours, minutes, seconds);
-				display_alarm_time(hours, minutes, seconds); 
+				display_alarm_time(hours,minutes,seconds);
             }
             else
             {
@@ -128,6 +120,7 @@ void set_task(void)
 	else if (strncmp(message, "reset", 5) == 0)
 	{	
 		erase_alarm_time();
+		erase_alarm_text();
 		reset_alarm();
 	}
 	/* check if it is an exit message */ 
