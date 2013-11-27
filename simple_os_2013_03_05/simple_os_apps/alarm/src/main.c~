@@ -26,6 +26,9 @@ stack_item Set_Stack[STACK_SIZE];
 /* stack for alarm_task */ 
 stack_item Alarm_Stack[STACK_SIZE];
 
+/* Init lift */
+lift_type lift;
+
 /* tasks */ 
 
 /* clock_task: clock task */ 
@@ -64,7 +67,6 @@ void alarm_task(void)
     /* infinite loop */ 
     while (1)
     {	
-	erase_alarm_text();	
 	alarm_wait();
 
     display_alarm_text();
