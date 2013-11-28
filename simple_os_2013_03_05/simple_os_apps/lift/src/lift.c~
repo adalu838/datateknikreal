@@ -183,6 +183,7 @@ void lift_has_arrived(lift_type lift)
 	while(passengers_enter(lift) || passengers_exit(lift))
 	{
 		si_cv_wait(&lift->change);
+		printf("%s\n","Arrive2"); 
 	}
 
 	si_sem_signal(&lift->mutex);
@@ -269,23 +270,40 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
 	{
 		si_cv_wait(&lift->change);
 	}
-/*
-	leave_floor();
-	enter_lift();
+
+	leave_floor(lift, id, from_floor);
+
+	enter_lift(lift, id, to_floor);
+
+	si_cv_broadcast(&lift->change);
+
 	draw_lift(lift);
 
-	while()
+	while(lift->moving || lift->floor != to_floor)
 	{
+		si_cv_wait(&lift->change);
 	}
 
-	exit_lift();
-*/
+	leave_lift(lift, to_floor, id);
+
+	si_sem_signal(&lift->mutex);
 }
 
 /* enter_lift: makes the person with id id and destination to_floor 
    enter the lift */ 
 void enter_lift(lift_type lift, int id, int to_floor)
 {
+	int i;
+
+	for (i = 0; i < MAX_N_PERSONS; i++)
+    {
+        if (lift->passengers_in_lift[i].id == NO_ID)
+        {
+			lift->passengers_in_lift[i].id = id;
+			lift->passengers_in_lift[i].to_floor = to_floor;
+			break;
+        }
+    }
 } 
 
 /* leave_lift: makes a person, standing inside the lift and having 
@@ -293,6 +311,16 @@ void enter_lift(lift_type lift, int id, int to_floor)
    person is returned in the parameter *id */ 
 void leave_lift(lift_type lift, int floor, int *id)
 {
+	int i;
+
+	for (i = 0; i < MAX_N_PERSONS; i++)
+    {
+        if (lift->passengers_in_lift[i].id == *id && lift->passengers_in_lift[i].to_floor == floor)
+        {
+			lift->passengers_in_lift[i].id = NO_ID;
+			lift->passengers_in_lift[i].to_floor = NO_FLOOR;
+        }
+    }
 }
 
 /* passengers_exit: returns number of passengers waiting to exit lift 
@@ -326,7 +354,6 @@ int passengers_enter(lift_type lift)
 			n_passengers++;
 		}
 	}
-	
 	return n_passengers;
 }
 

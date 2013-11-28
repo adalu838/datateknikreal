@@ -69,7 +69,7 @@ void passenger_task(void)
 		int from_floor = random_level();
 		int to_floor = to_random_level(from_floor);
 		lift_travel(lift, id, from_floor, to_floor);
-		si_wait_n_ms(5000); 
+		si_wait_n_ms(5000);
 	}
 }
 
@@ -86,6 +86,7 @@ void lift_task(void)
 	{
 		lift_next_floor(lift, &next_floor, &change_direction);
 		lift_move(lift, next_floor, change_direction);
+		lift_has_arrived(lift);
 	}
 }
 
