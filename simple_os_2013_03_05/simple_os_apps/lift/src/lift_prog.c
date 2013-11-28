@@ -45,16 +45,33 @@ int id_to_task_id(int id)
 int random_level(void)
 {
     /* return random number between 0 and N_FLOORS-1 */
-    return rand(12345) % N_FLOORS;
+    return rand() % N_FLOORS;
 }
 
 int to_random_level(int first)
 {
     /* return random floor to go to from first */
-    return (first + 1 + rand(12345)) % N_FLOORS;
+    return (first + 1 + rand()) % N_FLOORS;
 }
 
 /* tasks */ 
+
+/* task for each passenger */
+void passenger_task(void)
+{
+	int id, length, send_task_id;	
+
+	si_message_receive((char *) &id, &length, &send_task_id);
+
+	while(1)
+	{
+		srand(12345);
+		int from_floor = random_level();
+		int to_floor = to_random_level(from_floor);
+		lift_travel(lift, id, from_floor, to_floor);
+		si_wait_n_ms(5000); 
+	}
+}
 
 /* task for the lift */
 void lift_task(void)
@@ -69,6 +86,7 @@ void lift_task(void)
 	{
 		lift_next_floor(lift, &next_floor, &change_direction);
 		lift_move(lift, next_floor, change_direction);
+		lift_has_arrived(lift);
 	}
 }
 
@@ -88,7 +106,7 @@ void user_task(void)
 		/* read a message */ 
         si_ui_receive(message); 
 
-        if (strncmp(message,"new") == 0)
+        if (strcmp(message,"new") == 0)
         {
 			
 			if (n_persons < MAX_N_PERSONS)
@@ -105,30 +123,15 @@ void user_task(void)
         }
 
 		/* check if it is an exit message */
-        if (strcmp(message, "exit") == 0)
+        else if (strcmp(message, "exit") == 0)
         {
         	exit(0);
 		}
                 
-    	else 
+    	else
 		{
  			si_ui_show_error("unexpected message type"); 
 		}
-		si_wait_n_ms(500); 
-	}
-}
-
-void passenger_task(void)
-{
-	int id, length, send_task_id;	
-
-	si_message_receive((char *) &id, &length, &send_task_id);
-
-	while(1)
-	{
-		int from_floor = random_level();
-		int to_floor = to_random_level(from_floor);
-
 		si_wait_n_ms(500); 
 	}
 }

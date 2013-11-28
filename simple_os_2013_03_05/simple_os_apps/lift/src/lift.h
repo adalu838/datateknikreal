@@ -87,20 +87,20 @@ void lift_move(lift_type lift, int next_floor, int change_direction);
    until the lift shall move again. */
 void lift_has_arrived(lift_type lift); 
 
+int passenger_wait_for_lift(lift_type lift, int wait_floor);
+
+/* enter_floor: makes a person with id id stand at floor floor */ 
+void enter_floor(lift_type lift, int id, int floor);
+
+/* leave_floor: makes a person with id id at enter_floor leave 
+   enter_floor */ 
+void leave_floor(lift_type lift, int id, int enter_floor);
+
 /* MONITOR function lift_travel: makes the person with id id perform 
    a journey with the lift, starting at from_floor and ending 
    at to_floor */ 
 void lift_travel(lift_type lift, int id, int from_floor, int to_floor);
 /* fig_end mon_functions */ 
-
-/* enter_floor: makes the person with id id and destination to_floor stand 
-   at floor floor */ 
-void enter_floor(lift_type lift, int id, int floor, int to_floor); 
-
-/* leave_floor: makes a person, standing at floor floor, leave the  
-   floor. The id and destination of the person are returned in the 
-   parameters *id and *to_floor */ 
-void leave_floor(lift_type lift, int floor, int *id, int *to_floor); 
 
 /* enter_lift: makes the person with id id and destination to_floor 
    enter the lift */ 
@@ -110,10 +110,6 @@ void enter_lift(lift_type lift, int id, int to_floor);
    destination floor equal to floor, leave the lift. The id of the 
    person is returned in the parameter *id */ 
 void leave_lift(lift_type lift, int floor, int *id);
-
-/* lift_is_full: returns nonzero if the lift is full, returns zero 
-   otherwise */ 
-int lift_is_full(lift_type lift);
 
 /* passengers_exit: returns number of passengers waiting to exit lift */ 
 int passengers_exit(lift_type lift);
