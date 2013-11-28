@@ -11,6 +11,7 @@ ese
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "lift.h"
 #include "draw.h"
 
@@ -48,12 +49,6 @@ int random_level(void)
     return rand() % N_FLOORS;
 }
 
-int to_random_level(int first)
-{
-    /* return random floor to go to from first */
-    return (first + 1 + rand()) % N_FLOORS;
-}
-
 /* tasks */ 
 
 /* task for each passenger */
@@ -61,13 +56,18 @@ void passenger_task(void)
 {
 	int id, length, send_task_id;	
 
-	si_message_receive((char *) &id, &length, &send_task_id);
+	si_message_receive((char *) &id, &length, &send_task_id); 
 
 	while(1)
 	{
-		srand(12345);
+		srand(time(NULL));
 		int from_floor = random_level();
-		int to_floor = to_random_level(from_floor);
+		int to_floor;
+		do
+		{
+			to_floor = random_level();
+		}
+		while(from_floor == to_floor);
 		lift_travel(lift, id, from_floor, to_floor);
 		si_wait_n_ms(5000);
 	}
