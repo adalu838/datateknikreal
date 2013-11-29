@@ -111,13 +111,13 @@ void user_task(void)
 			
 			if (n_persons < MAX_N_PERSONS)
 			{
-				si_task_create(passenger_task, &Passenger_Stack[n_persons][STACK_SIZE-1], 30 + n_persons);
+				si_task_create(passenger_task, &Passenger_Stack[n_persons][STACK_SIZE-1], 10 + n_persons);
 				si_message_send((char *) &n_persons, sizeof(int), id_to_task_id(n_persons));
 				n_persons = n_persons + 1;
 			}
 			else
 			{
-				si_ui_show_error("can not create more persons");
+				si_ui_show_error("building is full");
 			}
 		
         }
@@ -149,8 +149,8 @@ int main(void)
     si_ui_init(); 
 
     /* create tasks */ 
-    si_task_create(lift_task, &Lift_Stack[STACK_SIZE-1], 20); 
-    si_task_create(user_task, &User_Stack[STACK_SIZE-1], 15);
+    si_task_create(lift_task, &Lift_Stack[STACK_SIZE-1], 30); 
+    si_task_create(user_task, &User_Stack[STACK_SIZE-1], 5);
 
     /* start the kernel */ 
     si_kernel_start(); 

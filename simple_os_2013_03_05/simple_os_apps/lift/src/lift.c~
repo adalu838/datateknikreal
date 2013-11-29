@@ -182,8 +182,7 @@ void lift_has_arrived(lift_type lift)
 	
 	while(passengers_enter(lift) || passengers_exit(lift))
 	{
-		si_cv_wait(&lift->change);
-		printf("%s\n","Arrive2"); 
+		si_cv_wait(&lift->change); 
 	}
 
 	si_sem_signal(&lift->mutex);
@@ -198,7 +197,7 @@ void lift_has_arrived(lift_type lift)
    wait, otherwise false */
 int passenger_wait_for_lift(lift_type lift, int wait_floor)
 {
-	return lift->moving || lift->floor != wait_floor || n_passengers_in_lift(lift) >= MAX_N_PASSENGERS;
+	return lift->moving || lift->floor != wait_floor || n_passengers_in_lift(lift) == MAX_N_PASSENGERS;
 }
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
@@ -274,17 +273,21 @@ void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
 	leave_floor(lift, id, from_floor);
 
 	enter_lift(lift, id, to_floor);
-
-	si_cv_broadcast(&lift->change);
-
+	
 	draw_lift(lift);
+	
+	si_cv_broadcast(&lift->change);
 
 	while(lift->moving || lift->floor != to_floor)
 	{
 		si_cv_wait(&lift->change);
 	}
 
-	leave_lift(lift, to_floor, id);
+	leave_lift(lift, to_floor, &id);
+	
+	draw_lift(lift);
+	
+	si_cv_broadcast(&lift->change);
 
 	si_sem_signal(&lift->mutex);
 }
@@ -349,7 +352,7 @@ int passengers_enter(lift_type lift)
 
 	for(i = 0; i < MAX_N_PASSENGERS; i++)
 	{
-		if (lift->persons_to_enter[floor][i].id != NO_ID)
+		if (lift->persons_to_enter[floor][i].id != NO_ID && MAX_N_PASSENGERS != n_passengers_in_lift(lift))
 		{
 			n_passengers++;
 		}

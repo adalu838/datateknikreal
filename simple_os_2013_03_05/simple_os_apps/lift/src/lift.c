@@ -350,7 +350,7 @@ int passengers_enter(lift_type lift)
 	int n_passengers = 0, floor, i;
 	floor = lift->floor;
 
-	for(i = 0; i < MAX_N_PASSENGERS; i++)
+	for(i = 0; i < MAX_N_PERSONS; i++)
 	{
 		if (lift->persons_to_enter[floor][i].id != NO_ID && MAX_N_PASSENGERS != n_passengers_in_lift(lift))
 		{
