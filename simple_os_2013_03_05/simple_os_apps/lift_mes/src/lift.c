@@ -42,10 +42,7 @@ lift_type lift_create(void)
     lift->floor = 0; 
     
     /* set direction of lift travel to up */
-    lift->up = 1;
-
-    /* the lift is not moving */ 
-    lift->moving = 0; 
+    lift->up = 0;
 
     /* initialise person information */
     for (floor = 0; floor < N_FLOORS; floor++)
@@ -64,10 +61,6 @@ lift_type lift_create(void)
         lift->passengers_in_lift[i].to_floor = NO_FLOOR; 
     }
 
-    /* initialise semaphore and event variable */
-    si_sem_init(&lift->mutex, 1); 
-    si_cv_init(&lift->change, &lift->mutex); 
-
     return lift;
 }
 
@@ -77,22 +70,13 @@ void lift_delete(lift_type lift)
     free(lift);
 }
 
-
-/* --- monitor data type for lift and operations for create and delete END --- */
-
-
-/* --- functions related to lift task START --- */
-
-/* MONITOR function lift_next_floor: computes the floor to which the lift 
-   shall travel. The parameter *change_direction indicates if the direction 
-   shall be changed */
+/* lift_next_floor: computes the floor to which 
+   the lift shall travel. The parameter *change_direction 
+   indicates if the direction shall be changed */
 void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
 {
-	si_sem_wait(&lift->mutex);
-	//printf("%s\n","Next");
-	
 	*change_direction = 0;
-
+	
 	if (lift->floor == 0 && lift->up)
 	{
 		*change_direction = 1;
@@ -111,93 +95,18 @@ void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
 	{
 		*next_floor = lift->floor + 1;
 	}
-
-	si_sem_signal(&lift->mutex);
 }
 
+/* lift_move: makes the lift move from its current 
+   floor to next_floor. The parameter change_direction indicates if 
+   the move includes a change of direction. */
 void lift_move(lift_type lift, int next_floor, int change_direction)
 {
-    /* reserve lift */ 
-    si_sem_wait(&lift->mutex); 
-
-    /* the lift is moving */ 
-    lift->moving = 1; 
-        
-    /* release lift */ 
-    si_sem_signal(&lift->mutex); 
-        
-    /* it takes two seconds to move to the next floor */ 
-    si_wait_n_ms(2000);
-	//printf("%s\n","Arrive1"); 
-        
-    /* reserve lift */ 
-    si_sem_wait(&lift->mutex);
-
-	//printf("%s\n","Arrive2");  
-        
-    /* the lift is not moving */ 
-    lift->moving = 0; 
-
-    /* the lift has arrived at next_floor */ 
-    lift->floor = next_floor; 
-
-    /* check if direction shall be changed */ 
-    if (change_direction)
-    {
-        lift->up = !lift->up; 
-    }
-
-    /* draw, since a change has occurred */ 
-    draw_lift(lift); 
-
-    /* release lift */ 
-    si_sem_signal(&lift->mutex); 
 }
 
-/* this function is used also by the person tasks */ 
-static int n_passengers_in_lift(lift_type lift)
+/* get_current_floor: returns the floor on which the lift is positioned */ 
+int get_current_floor(lift_type lift)
 {
-    int n_passengers = 0; 
-    int i; 
-        
-    for (i = 0; i < MAX_N_PASSENGERS; i++)
-    {
-        if (lift->passengers_in_lift[i].id != NO_ID)
-        {
-            n_passengers++; 
-        }
-    }
-    return n_passengers; 
-}
-
-/* MONITOR function lift_has_arrived: shall be called by the lift task
-   when the lift has arrived at the next floor. This function indicates
-   to other tasks that the lift has arrived, and then waits until the lift
-   shall move again. */
-void lift_has_arrived(lift_type lift)
-{
-	si_sem_wait(&lift->mutex);
-
-	si_cv_broadcast(&lift->change);
-	
-	while(passengers_enter(lift) || passengers_exit(lift))
-	{
-		si_cv_wait(&lift->change); 
-	}
-
-	si_sem_signal(&lift->mutex);
-}
-
-/* --- functions related to lift task END --- */
-
-
-/* --- functions related to person task START --- */
-
-/* passenger_wait_for_lift: returns true if passenger shall
-   wait, otherwise false */
-int passenger_wait_for_lift(lift_type lift, int wait_floor)
-{
-	return lift->moving || lift->floor != wait_floor || n_passengers_in_lift(lift) == MAX_N_PASSENGERS;
 }
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
@@ -257,41 +166,6 @@ void leave_floor(lift_type lift, int id, int enter_floor)
     lift->persons_to_enter[enter_floor][floor_index].to_floor = NO_FLOOR; 
 }
 
-/* MONITOR function lift_travel: performs a journey with the lift
-   starting at from_floor, and ending at to_floor */ 
-void lift_travel(lift_type lift, int id, int from_floor, int to_floor)
-{
-	si_sem_wait(&lift->mutex);
-	enter_floor(lift, id, from_floor);
-	draw_lift(lift);
-
-	while(passenger_wait_for_lift(lift, from_floor))
-	{
-		si_cv_wait(&lift->change);
-	}
-
-	leave_floor(lift, id, from_floor);
-
-	enter_lift(lift, id, to_floor);
-	
-	draw_lift(lift);
-	
-	si_cv_broadcast(&lift->change);
-
-	while(lift->moving || lift->floor != to_floor)
-	{
-		si_cv_wait(&lift->change);
-	}
-
-	leave_lift(lift, to_floor, &id);
-	
-	draw_lift(lift);
-	
-	si_cv_broadcast(&lift->change);
-
-	si_sem_signal(&lift->mutex);
-}
-
 /* enter_lift: makes the person with id id and destination to_floor 
    enter the lift */ 
 void enter_lift(lift_type lift, int id, int to_floor)
@@ -326,9 +200,9 @@ void leave_lift(lift_type lift, int floor, int *id)
     }
 }
 
-/* passengers_exit: returns number of passengers waiting to exit lift 
-	INTE KLAR?*/ 
-int passengers_exit(lift_type lift)
+/* n_passengers_to_leave: returns the number of passengers in the 
+   lift having the destination floor equal to floor */
+int n_passengers_to_leave(lift_type lift, int floor)
 {
 	int n_passengers = 0, floor, i;
 	floor = lift->floor;
@@ -344,8 +218,9 @@ int passengers_exit(lift_type lift)
 	return n_passengers;
 }
 
-/* passengers_enter: returns number of passengers waiting to enter lift */ 
-int passengers_enter(lift_type lift)
+/* n_persons_to_enter: returns the number of persons standing on 
+   floor floor */ 
+int n_persons_to_enter(lift_type lift, int floor)
 {
 	int n_passengers = 0, floor, i;
 	floor = lift->floor;
@@ -360,4 +235,19 @@ int passengers_enter(lift_type lift)
 	return n_passengers;
 }
 
-/* --- functions related to person task END --- */
+/* lift_is_full: returns nonzero if the lift is full, returns zero 
+   otherwise */ 
+int lift_is_full(lift_type lift)
+{
+	int n_passengers = 0;
+	
+	for(i = 0; i < MAX_N_PASSENGERS; i++)
+	{
+		if (lift->passengers_in_lift[i].id != NO_ID)
+		{
+			n_passengers++;
+		}
+	}
+	return n_passengers;
+}
+
