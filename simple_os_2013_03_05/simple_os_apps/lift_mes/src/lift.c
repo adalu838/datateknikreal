@@ -102,15 +102,27 @@ void lift_next_floor(lift_type lift, int *next_floor, int *change_direction)
    the move includes a change of direction. */
 void lift_move(lift_type lift, int next_floor, int change_direction)
 {
+    /* the lift has arrived at next_floor */ 
+    lift->floor = next_floor; 
+
+    /* check if direction shall be changed */ 
+    if (change_direction)
+    {
+        lift->up = !lift->up; 
+    }
+
+    /* draw, since a change has occurred */ 
+    draw_lift(lift); 
 }
 
 /* get_current_floor: returns the floor on which the lift is positioned */ 
 int get_current_floor(lift_type lift)
 {
+	return lift->floor;
 }
 
 /* enter_floor: makes a person with id id stand at floor floor */ 
-void enter_floor(lift_type lift, int id, int floor)
+void enter_floor(lift_type lift, int id, int floor, int to_floor)
 {
     int i; 
     int floor_index; 
@@ -134,7 +146,7 @@ void enter_floor(lift_type lift, int id, int floor)
 
     /* enter floor at index floor_index */ 
     lift->persons_to_enter[floor][floor_index].id = id; 
-    lift->persons_to_enter[floor][floor_index].to_floor = NO_FLOOR; 
+    lift->persons_to_enter[floor][floor_index].to_floor = to_floor; 
 }
 
 /* leave_floor: makes a person with id id at enter_floor leave 
@@ -168,35 +180,51 @@ void leave_floor(lift_type lift, int id, int enter_floor)
 
 /* enter_lift: makes the person with id id and destination to_floor 
    enter the lift */ 
-void enter_lift(lift_type lift, int id, int to_floor)
+void enter_lift(lift_type lift)
 {
-	int i;
-
-	for (i = 0; i < MAX_N_PERSONS; i++)
+	int i, j, floor;
+	floor = get_current_floor(lift);
+	
+	for (i = 0; i < MAX_N_PERSONS && n_persons_to_enter(lift, floor); i++)
     {
-        if (lift->passengers_in_lift[i].id == NO_ID)
-        {
-			lift->passengers_in_lift[i].id = id;
-			lift->passengers_in_lift[i].to_floor = to_floor;
-			break;
-        }
+		for (j = 0; j < MAX_N_PASSENGERS; j++)
+		{
+			if (lift->passengers_in_lift[j].id == NO_ID)
+			{
+				lift->passengers_in_lift[j].id = lift->persons_to_enter[floor][i].id;
+				lift->passengers_in_lift[j].to_floor = lift->persons_to_enter[floor][i].to_floor;
+				lift->persons_to_enter[floor][i].id = NO_ID;
+				lift->persons_to_enter[floor][i].to_floor = NO_FLOOR;
+				break;
+			}
+		}
     }
 } 
 
 /* leave_lift: makes a person, standing inside the lift and having 
    destination floor equal to floor, leave the lift. The id of the 
-   person is returned in the parameter *id */ 
+   person is returned in the parameter *id 
+   
+   
+   häääääääääääääääääääääääääääääääääääääääääääär
+   
+   
+   */ 
 void leave_lift(lift_type lift, int floor, int *id)
 {
-	int i;
-
-	for (i = 0; i < MAX_N_PERSONS; i++)
+	int i, j, floor;
+	floor = get_current_floor(lift);
+	
+	for (i = 0; i < MAX_N_PASSENGERS && n_persons_to_leave(lift, floor); i++)
     {
-        if (lift->passengers_in_lift[i].id == *id && lift->passengers_in_lift[i].to_floor == floor)
-        {
-			lift->passengers_in_lift[i].id = NO_ID;
-			lift->passengers_in_lift[i].to_floor = NO_FLOOR;
-        }
+		if (lift->passengers_in_lift[j].id == NO_ID)
+		{
+			lift->passengers_in_lift[j].id = lift->persons_to_enter[floor][i].id;
+			lift->passengers_in_lift[j].to_floor = lift->persons_to_enter[floor][i].to_floor;
+			lift->persons_to_enter[floor][i].id = NO_ID;
+			lift->persons_to_enter[floor][i].to_floor = NO_FLOOR;
+			break;
+		}
     }
 }
 
@@ -204,8 +232,7 @@ void leave_lift(lift_type lift, int floor, int *id)
    lift having the destination floor equal to floor */
 int n_passengers_to_leave(lift_type lift, int floor)
 {
-	int n_passengers = 0, floor, i;
-	floor = lift->floor;
+	int n_passengers = 0, i;
 	
 	for(i = 0; i < MAX_N_PASSENGERS; i++)
 	{
@@ -222,12 +249,11 @@ int n_passengers_to_leave(lift_type lift, int floor)
    floor floor */ 
 int n_persons_to_enter(lift_type lift, int floor)
 {
-	int n_passengers = 0, floor, i;
-	floor = lift->floor;
+	int n_passengers = 0, i;
 
 	for(i = 0; i < MAX_N_PERSONS; i++)
 	{
-		if (lift->persons_to_enter[floor][i].id != NO_ID && MAX_N_PASSENGERS != n_passengers_in_lift(lift))
+		if (lift->persons_to_enter[floor][i].id != NO_ID && MAX_N_PASSENGERS != lift_is_full(lift))
 		{
 			n_passengers++;
 		}
@@ -239,7 +265,7 @@ int n_persons_to_enter(lift_type lift, int floor)
    otherwise */ 
 int lift_is_full(lift_type lift)
 {
-	int n_passengers = 0;
+	int n_passengers = 0, i;
 	
 	for(i = 0; i < MAX_N_PASSENGERS; i++)
 	{
@@ -250,4 +276,3 @@ int lift_is_full(lift_type lift)
 	}
 	return n_passengers;
 }
-

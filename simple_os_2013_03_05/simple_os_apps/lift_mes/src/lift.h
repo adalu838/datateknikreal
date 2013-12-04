@@ -29,6 +29,18 @@
 
 /* fig_end lift_h_defs */ 
 
+/* data structure for messages */ 
+typedef struct
+{
+    /* message type */
+    int type; 
+    /* person id */ 
+    int id; 
+    /* source and destination of lift travel */ 
+    int from_floor; 
+    int to_floor; 
+} message_data_type;
+
 /* fig_begin person_data_type */ 
 /* data structure for person information */ 
 typedef struct
@@ -91,7 +103,7 @@ int get_current_floor(lift_type lift);
 
 /* enter_floor: makes the person with id id and destination to_floor stand 
    at floor floor */
-void enter_floor(lift_type lift, int id, int floor);
+void enter_floor(lift_type lift, int id, int floor, int to_floor);
 
 /* leave_floor: makes a person with id id at enter_floor leave 
    enter_floor */ 
@@ -99,7 +111,7 @@ void leave_floor(lift_type lift, int id, int enter_floor);
 
 /* enter_lift: makes the person with id id and destination to_floor 
    enter the lift */ 
-void enter_lift(lift_type lift, int id, int to_floor); 
+void enter_lift(lift_type lift); 
 
 /* leave_lift: makes a person, standing inside the lift and having 
    destination floor equal to floor, leave the lift. The id of the 
