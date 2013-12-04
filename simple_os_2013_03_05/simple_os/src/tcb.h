@@ -23,6 +23,12 @@
 
 #include "arch_types.h"
 
+/* tasks with priorities above this
+value are considered as time-shared tasks,
+otherwise they are considered as
+real-time tasks */
+#define TIME_SHARED_PRIORITY_BASE 20
+
 /* fig_begin tcb_def */ 
 /* type definition for a task control block */
 typedef struct
