@@ -27,6 +27,9 @@
    a lift travel is finished */ 
 #define TRAVEL_DONE_MESSAGE 2
 
+/* set id of first passenger */
+#define TASK_ID_FIRST_PERSON 4
+
 /* fig_end lift_h_defs */ 
 
 /* data structure for messages */ 
@@ -116,7 +119,7 @@ void enter_lift(lift_type lift);
 /* leave_lift: makes a person, standing inside the lift and having 
    destination floor equal to floor, leave the lift. The id of the 
    person is returned in the parameter *id */ 
-void leave_lift(lift_type lift, int floor, int *id);
+void leave_lift(lift_type lift);
 
 /* n_passengers_to_leave: returns the number of passengers in the 
    lift having the destination floor equal to floor */
@@ -129,5 +132,7 @@ int n_persons_to_enter(lift_type lift, int floor);
 /* lift_is_full: returns nonzero if the lift is full, returns zero 
    otherwise */ 
 int lift_is_full(lift_type lift); 
+
+int id_to_task_id(int id);
 
 #endif

@@ -18,9 +18,6 @@ ese
 /* stack size */ 
 #define STACK_SIZE 5000
 
-/* set id of first passenger */
-#define TASK_ID_FIRST_PERSON 4
-
 /* stacks */
 
 /* stack for lift_task */ 
@@ -41,12 +38,6 @@ lift_type lift;
 int User_Task_Id, Lift_Task_Id, Move_Lift_Task_Id, Lowest_Passenger_Task_Id; 
 int LIFT_PRIORITY, MOVE_LIFT_PRIORITY, USER_PRIORITY; 
 
-/* sets task id to passenger */
-int id_to_task_id(int id)
-{
-    return id + TASK_ID_FIRST_PERSON; 
-}
-
 /* creates random level */
 int random_level(void)
 {
@@ -62,11 +53,11 @@ void passenger_task(void)
 	int id, length, send_task_id;
 	message_data_type message;	
 
-	si_message_receive((char *) &id, &length, &message.id); 
+	si_message_receive((char *) &message.id, &length, &send_task_id); 
 
 	while(1)
 	{
-		srand(12345);
+		srand(time(NULL));
 		message.from_floor = random_level();
 		do
 		{
@@ -101,7 +92,9 @@ void lift_task(void)
 			case MOVE_MESSAGE:
 				lift_move(lift, next_floor, change_direction);
 				lift_next_floor(lift, &next_floor, &change_direction);
+				leave_lift(lift);
 				enter_lift(lift);
+				draw_lift(lift);
 				break;
 				
 			case TRAVEL_MESSAGE:

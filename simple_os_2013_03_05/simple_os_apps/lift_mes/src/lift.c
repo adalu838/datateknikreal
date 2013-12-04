@@ -146,7 +146,8 @@ void enter_floor(lift_type lift, int id, int floor, int to_floor)
 
     /* enter floor at index floor_index */ 
     lift->persons_to_enter[floor][floor_index].id = id; 
-    lift->persons_to_enter[floor][floor_index].to_floor = to_floor; 
+    lift->persons_to_enter[floor][floor_index].to_floor = to_floor;
+	draw_lift(lift);
 }
 
 /* leave_floor: makes a person with id id at enter_floor leave 
@@ -204,28 +205,25 @@ void enter_lift(lift_type lift)
 /* leave_lift: makes a person, standing inside the lift and having 
    destination floor equal to floor, leave the lift. The id of the 
    person is returned in the parameter *id 
-   
-   
-   häääääääääääääääääääääääääääääääääääääääääääär
-   
-   
    */ 
-void leave_lift(lift_type lift, int floor, int *id)
+void leave_lift(lift_type lift)
 {
-	int i, j, floor;
+	int i, floor, id;
+	message_data_type message;
+	message.type = TRAVEL_DONE_MESSAGE;
 	floor = get_current_floor(lift);
 	
-	for (i = 0; i < MAX_N_PASSENGERS && n_persons_to_leave(lift, floor); i++)
+	for (i = 0; i < MAX_N_PASSENGERS && n_passengers_to_leave(lift, floor); i++)
     {
-		if (lift->passengers_in_lift[j].id == NO_ID)
+		if (lift->passengers_in_lift[i].to_floor == floor)
 		{
-			lift->passengers_in_lift[j].id = lift->persons_to_enter[floor][i].id;
-			lift->passengers_in_lift[j].to_floor = lift->persons_to_enter[floor][i].to_floor;
-			lift->persons_to_enter[floor][i].id = NO_ID;
-			lift->persons_to_enter[floor][i].to_floor = NO_FLOOR;
-			break;
+			id = lift->passengers_in_lift[i].id;
+			lift->passengers_in_lift[i].id = NO_ID;
+			lift->passengers_in_lift[i].to_floor = NO_FLOOR;
+			si_message_send((char *) &message, sizeof(int), id_to_task_id(id));
 		}
     }
+	draw_lift(lift);
 }
 
 /* n_passengers_to_leave: returns the number of passengers in the 
@@ -275,4 +273,11 @@ int lift_is_full(lift_type lift)
 		}
 	}
 	return n_passengers;
+}
+
+
+/* sets task id to passenger */
+int id_to_task_id(int id)
+{
+    return id + TASK_ID_FIRST_PERSON; 
 }
