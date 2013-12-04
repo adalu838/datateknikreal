@@ -35,6 +35,11 @@ stack_item Passenger_Stack[MAX_N_PERSONS][STACK_SIZE];
 /* Init lift */
 lift_type lift;
 
+int User_Task_Id; 
+int Lift_Task_Id; 
+int Move_Lift_Task_Id; 
+int Lowest_Passenger_Task_Id;
+
 
 /* sets task id to passenger */
 int id_to_task_id(int id)
@@ -90,6 +95,9 @@ void lift_task(void)
 	}
 }
 
+/* task for moving the lift */
+ void move_lift_task(void)
+ 
 /* task for user communication */
 void user_task(void)
 {
@@ -136,7 +144,7 @@ void user_task(void)
 	}
 }
 
-/* main */ 
+/* main */                          //ÄNDRAD!!!!!!!!!!
 int main(void)
 {
     /* initialise kernel */ 
@@ -147,10 +155,25 @@ int main(void)
     
     /* initialise UI channel */ 
     si_ui_init(); 
+	
+	/* initialise random number generator */
+    initialise_random();
 
     /* create tasks */ 
-    si_task_create(lift_task, &Lift_Stack[STACK_SIZE-1], 30); 
-    si_task_create(user_task, &User_Stack[STACK_SIZE-1], 5);
+
+    si_task_create(lift_task, &Lift_Stack[STACK_SIZE - 1], LIFT_PRIORITY);
+
+    Lift_Task_Id = 1; 
+
+    si_task_create(move_lift_task, &Move_Lift_Stack[STACK_SIZE - 1], MOVE_LIFT_PRIORITY);
+
+    Move_Lift_Task_Id = 2; 
+
+    si_task_create(user_task, &User_Stack[STACK_SIZE - 1], USER_PRIORITY);
+
+    User_Task_Id = 3; 
+
+    Lowest_Passenger_Task_Id = 4; 
 
     /* start the kernel */ 
     si_kernel_start(); 
