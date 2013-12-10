@@ -63,5 +63,12 @@ void time_list_decrement_timers(int *n_new_tasks_ready, int new_task_ids_ready[]
         tcb_list_ref, tcb_storage_get_tcb_list_size(), 
         Time_List, TIME_LIST_SIZE, 
         n_new_tasks_ready, new_task_ids_ready);
+
+	  /* increment timers */ 
+    tcb_list_increment_run_timer(
+        tcb_list_ref, tcb_storage_get_tcb_list_size(), 
+        Time_List, TIME_LIST_SIZE, 
+        n_new_tasks_ready, new_task_ids_ready);
+
 }
 

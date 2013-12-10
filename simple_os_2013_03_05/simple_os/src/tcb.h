@@ -45,6 +45,8 @@ typedef struct
     int valid;
     /* waiting time in ticks */ 
     int wait_ticks; 
+	/* running time in ticks */ 
+	int run_ticks;
     /* priority */ 
     int priority; 
 } task_control_block;

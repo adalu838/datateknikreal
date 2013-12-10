@@ -35,10 +35,20 @@ int tcb_list_insert(
    in tcb_list */ 
 int tcb_list_get_task_id_highest_prio(
     task_control_block tcb_list[], int tcb_list_length, 
-    int task_id_list[], int task_id_list_length); 
+    int task_id_list[], int task_id_list_length);
+
+/* tcb_list_get_task_id_highest_prio_not_quantum: As above, but checks if exceeded quantum limit*/ 
+int tcb_list_get_task_id_highest_prio_not_quantum(
+	task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length);
 
 void tcb_list_decrement_timers(
     task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length, 
+    int *n_timers_set_to_zero, int task_ids_set_to_zero[]);
+
+/* tcb_list_increment_run_timer: Increments tick counter for a running task <---------------------------*/ 
+void tcb_list_increment_run_timer(task_control_block tcb_list[], int tcb_list_length, 
     int task_id_list[], int task_id_list_length, 
     int *n_timers_set_to_zero, int task_ids_set_to_zero[]);
 

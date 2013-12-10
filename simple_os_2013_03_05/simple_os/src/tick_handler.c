@@ -129,7 +129,7 @@ void tick_handler_function(void)
     time_storage_register_tick(); 
     /* decrement timers for all waiting processes */ 
     time_list_decrement_timers(
-        &n_new_tasks_ready, new_task_ids_ready); 
+        &n_new_tasks_ready, new_task_ids_ready);
     /* check if any tasks have become ready */ 
     if (n_new_tasks_ready > 0)
     {

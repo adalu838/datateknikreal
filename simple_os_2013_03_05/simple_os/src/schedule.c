@@ -22,7 +22,7 @@
 
 #include "ready_list.h"
 #include "task.h"
-
+#include "tcb_list.h"
 #include "console.h"
 
 /* fig_begin schedule */ 
@@ -37,22 +37,43 @@ void schedule(void)
     int task_id_highest_prio; 
 
     /* get task id for the running task */ 
-    task_id_running = task_get_task_id_running(); 
+    task_id_running = task_get_task_id_running();
 
-    /* get task id for task in ready list with 
-       highest priority */ 
-    task_id_highest_prio = 
-        ready_list_get_task_id_highest_prio(); 
+	/* check if a real time task is running */
+	if (ready_list_has_real_time_task())
+	{
+    	/* get task id for task in ready list with 
+       	highest priority */ 
+    	task_id_highest_prio = ready_list_get_task_id_highest_prio(); 
 
-    /* check if a task switch shall be performed */ 
-    if (task_id_highest_prio != task_id_running)
-    {
-        /* perform task switch */ 
-        task_switch(task_id_running, task_id_highest_prio); 
-    }
-    else
-    {
-        return; /* no task switch */
-    }
+    	/* check if a task switch shall be performed */ 
+    	if (task_id_highest_prio != task_id_running)
+    	{
+        	/* perform task switch */ 
+        	task_switch(task_id_running, task_id_highest_prio);
+    	}
+    	else
+    	{
+        	return; /* no task switch */
+    	}
+	}
+	/* handle the time shared tasks */
+	else
+	{
+		/* get task id for task in ready list with 
+       	highest priority */ 
+    	task_id_highest_prio = ready_list_get_task_id_highest_prio_not_quantum(); 
+
+    	/* check if a task switch shall be performed */ 
+    	if (task_id_highest_prio != task_id_running)
+    	{
+        	/* perform task switch */ 
+        	task_switch(task_id_running, task_id_highest_prio);
+    	}
+    	else
+    	{
+        	return; /* no task switch */
+    	}
+	}
 }
 /* fig_end schedule */ 

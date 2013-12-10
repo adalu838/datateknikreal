@@ -29,7 +29,10 @@ void ready_list_insert(int task_id);
 
 /* ready_list_get_task_id_highest_prio: get the task id for the task
    with the highest priority, among the tasks in the ready list */ 
-int ready_list_get_task_id_highest_prio(void); 
+int ready_list_get_task_id_highest_prio(void);
+
+/* ready_list_get_task_id_highest_prio_not_quantum: As above, but checks if exceeded quantum limit */
+int ready_list_get_task_id_highest_prio_not_quantum(void);
 
 /* ready_list_remove: removes task_id from the list of ready-to-run tasks */ 
 void ready_list_remove(int task_id);

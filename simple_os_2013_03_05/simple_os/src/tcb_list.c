@@ -135,6 +135,71 @@ int tcb_list_get_task_id_highest_prio(
     }
 }
 
+int tcb_list_get_task_id_highest_prio_not_quantum(
+	task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length)
+{
+	/* loop counter for task_id_list */  
+    int task_id_index; 
+    
+    /* current priority and task_id */ 
+    int current_priority; 
+    int current_task_id;
+
+	/* current run time */
+	int run_time;
+
+    /* smallest priority value found */ 
+    int min_priority_value = MAX_PRIORITY_VALUE; 
+
+    /* task_id for process with smallest priority value */
+    int task_id_min_priority_value; 
+
+    /* set to true if no valid task_id and TCB are found */ 
+    int no_valid_task_id_tcb = 1; 
+ 
+    /* go through task_id_list */ 
+    for (task_id_index = 0; task_id_index < task_id_list_length; task_id_index++) 
+    {
+        /* get the task_id */ 
+        current_task_id = task_id_list[task_id_index];
+
+        /* check if valid task_id */  
+        if (current_task_id != TASK_ID_INVALID)
+        {
+            /* check if valid tcb */   
+            if (tcb_is_valid(&tcb_list[current_task_id]))
+            {
+                /* one valid task_id and TCB combination is found */ 
+                if (no_valid_task_id_tcb)
+                {
+                    no_valid_task_id_tcb = 0; 
+                }
+                /* get the priority */ 
+                current_priority = tcb_list[current_task_id].priority;
+				run_time = tcb_list[current_task_id].run_ticks;
+                /* compare */ 
+                if (current_priority < min_priority_value && run_time < MAX_RUN_TICKS)
+                {
+                    /* a new minumun value is found */ 
+                    min_priority_value = current_priority; 
+                    /* record current task_id */ 
+                    task_id_min_priority_value = current_task_id; 
+                }
+            }
+        }
+    }
+    /* return the value found */ 
+    if (no_valid_task_id_tcb)
+    {
+        return TASK_ID_INVALID; 
+    }
+    else
+    {
+        return task_id_min_priority_value; 
+    }
+}
+
 #include "console.h"
 
 void tcb_list_decrement_timers(
@@ -165,15 +230,15 @@ void tcb_list_decrement_timers(
                 {
                     tcb_list[current_task_id].wait_ticks--; 
 
-                    /* console_put_string("tid: ");  */
-                    /* console_put_hex(current_task_id);  */
-                    /* console_put_string("new ticks: ");  */
-                    /* console_put_hex(tcb_list[current_task_id].wait_ticks);  */
+                    //console_put_string("tid: ");
+                    //console_put_hex(current_task_id); 
+                    //console_put_string("new ticks: ");  
+                    //console_put_hex(tcb_list[current_task_id].wait_ticks);
 
                     if (tcb_list[current_task_id].wait_ticks == 0)
                     {
-                        // console_put_string("END WAIT for tid: "); 
-                        // console_put_hex(current_task_id);  
+                        //console_put_string("END WAIT for tid: "); 
+                        //console_put_hex(current_task_id);  
                         task_ids_set_to_zero[n_set_to_zero] = current_task_id; 
                         n_set_to_zero++; 
                     }
@@ -182,6 +247,31 @@ void tcb_list_decrement_timers(
         }
     }
     *n_timers_set_to_zero = n_set_to_zero; 
+}
+
+void tcb_list_increment_run_timer(task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length, 
+    int *n_timers_set_to_zero, int task_ids_set_to_zero[])
+{
+	/* current task_id */ 
+    int current_task_id;
+
+	/* get the task_id */ 
+    current_task_id = task_get_task_id_running();
+    /* check if valid task_id */  
+
+    if (current_task_id != TASK_ID_INVALID)
+    {
+    	/* check if valid tcb */   
+        if (tcb_is_valid(&tcb_list[current_task_id]))
+        {
+        	tcb_list[current_task_id].run_ticks++;
+			if(tcb_list[current_task_id].run_ticks == 100)
+			{
+				schedule();
+			}
+      	}
+	}
 }
 
 int tcb_list_has_real_time_task(

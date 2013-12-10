@@ -88,7 +88,7 @@ void task_creator_task(void)
 
 
 void real_time_task(void)
-{
+{	
     while(1)
     {
         console_put_string("This is a real-time task\n"); 
