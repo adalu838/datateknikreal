@@ -92,7 +92,7 @@ void real_time_task(void)
     while(1)
     {
         console_put_string("This is a real-time task\n"); 
-        si_wait_n_ms(5000); 
+        si_wait_n_ms(5000);
     }
 }
 

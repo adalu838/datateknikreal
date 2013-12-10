@@ -191,7 +191,6 @@ void si_task_create(
 
     /* create the task */ 
     task_id = task_create(task_function, stack_bottom, priority);
-	printf("%d\n", task_id);
 
     /* and insert it into ready list */ 
     ready_list_insert(task_id); 
@@ -221,7 +220,6 @@ if (Kernel_Running)
 	}
 /* create the task */
 task_id = task_create(task_function, stack_bottom, priority);
-printf("%d\n", task_id);
 
 /* and insert it into ready list */
 ready_list_insert(task_id);

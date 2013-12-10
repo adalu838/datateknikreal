@@ -46,7 +46,7 @@ TIMECAPS timecaps;
 UINT timerid; 
 
 /* variable to simulate switching on and off interrupts */ 
-static int Int_Enabled_Win = 0; 
+static int Int_Enabled_Win = 0;
 
 void enable_int_win(void)
 {
@@ -69,7 +69,10 @@ void disable_int_win(void)
 
 static int interrupt_counter; 
 static int interrupt_counter_max; 
-static char interrupt_char; 
+static char interrupt_char;
+
+/* variable to keep track of number of ticks */ 
+int number_of_ticks = 0;
 
 #if defined BUILD_X86_HOST || defined BUILD_X86_64_HOST
 
@@ -143,6 +146,12 @@ void tick_handler_function(void)
         /* perform scheduling */ 
         schedule(); 
     }
+	else if (number_of_ticks == MAX_RUN_TICKS)
+	{
+		schedule();
+		number_of_ticks = 0;
+	}
+	number_of_ticks++;
 
 #ifdef BUILD_X86_WIN_HOST 
     

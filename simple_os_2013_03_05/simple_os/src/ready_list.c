@@ -40,7 +40,7 @@ void ready_list_init(void)
 
 void ready_list_insert(int task_id)
 {
-    task_id_list_insert(Ready_List, READY_LIST_SIZE, task_id); 
+    task_id_list_insert(Ready_List, READY_LIST_SIZE, task_id);
 }
 
 int ready_list_get_task_id_highest_prio(void)

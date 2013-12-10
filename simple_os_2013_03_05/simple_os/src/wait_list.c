@@ -34,8 +34,6 @@ void wait_list_reset(int wait_list[], int length)
 void wait_list_insert(int wait_list[], int length, int task_id)
 {
     task_id_list_insert(wait_list, length, task_id);
-	printf("%s","Inlagd i wait: ");
-    printf("%d\n",task_id);
 }
 
 int wait_list_is_empty(int wait_list[], int length)

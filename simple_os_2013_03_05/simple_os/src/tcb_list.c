@@ -158,6 +158,12 @@ int tcb_list_get_task_id_highest_prio_not_quantum(
     /* set to true if no valid task_id and TCB are found */ 
     int no_valid_task_id_tcb = 1; 
  
+	/* check if TS tasks exceeded quantum, if so reset run_time */
+	if (!tcb_list_check_ts_all_quantum(tcb_list, tcb_list_length, task_id_list, task_id_list_length))
+	{
+		tcb_list_reset_run_time(tcb_list, tcb_list_length, task_id_list, task_id_list_length);
+	}
+ 
     /* go through task_id_list */ 
     for (task_id_index = 0; task_id_index < task_id_list_length; task_id_index++) 
     {
@@ -266,10 +272,6 @@ void tcb_list_increment_run_timer(task_control_block tcb_list[], int tcb_list_le
         if (tcb_is_valid(&tcb_list[current_task_id]))
         {
         	tcb_list[current_task_id].run_ticks++;
-			if(tcb_list[current_task_id].run_ticks == 100)
-			{
-				schedule();
-			}
       	}
 	}
 }
@@ -300,3 +302,52 @@ int tcb_list_has_real_time_task(
     return real_time_task_found; 
 }
 
+int tcb_list_check_ts_all_quantum(
+    task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length)
+{
+	int id_index; 
+	int task_id; 
+    int quantum_time_shared_task_found = 0; 
+ 
+    for (id_index = 1; id_index < task_id_list_length; id_index++) 
+    {
+		task_id = task_id_list[id_index];
+		if (!tcb_is_real_time_task(&tcb_list[task_id]))
+		{
+			if (task_id != TASK_ID_INVALID)
+			{
+				if (tcb_is_valid(&tcb_list[task_id]))
+				{
+					if (tcb_list[task_id].run_ticks < MAX_RUN_TICKS)
+					{
+						quantum_time_shared_task_found++;
+					}
+				}	
+			}
+		}
+    }
+    return quantum_time_shared_task_found; 
+}
+
+void tcb_list_reset_run_time(
+    task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length)
+{
+	int id_index; 
+	int task_id; 
+	for (id_index = 0; id_index < task_id_list_length; id_index++) 
+	{
+		task_id = task_id_list[id_index];
+		if (!tcb_is_real_time_task(&tcb_list[task_id]))
+		{
+			if (task_id != TASK_ID_INVALID)
+			{
+				if (tcb_is_valid(&tcb_list[task_id]))
+				{
+					tcb_list[task_id].run_ticks = 0;
+				}	
+			}
+		}
+	}
+}

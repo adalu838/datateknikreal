@@ -58,7 +58,16 @@ void tcb_list_increment_run_timer(task_control_block tcb_list[], int tcb_list_le
 int tcb_list_has_real_time_task(
     task_control_block tcb_list[], int tcb_list_length, 
     int task_id_list[], int task_id_list_length);
+	
+/* tcb_list_check_ts_all_quantum: return number of TS tasks that have not exceeded quantum */ 
+int tcb_list_check_ts_all_quantum(
+    task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length);
 
+/* tcb_list_reset_run_time: reset run time for TS tasks */ 
+void tcb_list_reset_run_time(
+    task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length);
 
 #endif
 
