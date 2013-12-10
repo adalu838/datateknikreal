@@ -139,6 +139,9 @@ void si_kernel_init(void)
     task_id_idle = task_create(idle_task, 
         &Idle_Stack[IDLE_STACK_SIZE-1], 
         IDLE_PRIORITY); 
+	
+	/* identify the idle task */
+	task_set_idle_task(idle_task);
 
     /* and insert it into the ready list */
     ready_list_insert(task_id_idle); 

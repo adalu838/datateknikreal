@@ -47,7 +47,7 @@ void tcb_list_decrement_timers(
    tasks */ 
 int tcb_list_has_real_time_task(
     task_control_block tcb_list[], int tcb_list_length, 
-    int task_id_list[], int task_id_list_length)
+    int task_id_list[], int task_id_list_length);
 
 
 #endif

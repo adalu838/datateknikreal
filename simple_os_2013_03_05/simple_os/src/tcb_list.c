@@ -19,7 +19,6 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "tcb_list.h"
-
 #include "tcb.h"
 #include "task_id_list.h"
 
@@ -183,5 +182,31 @@ void tcb_list_decrement_timers(
         }
     }
     *n_timers_set_to_zero = n_set_to_zero; 
+}
+
+int tcb_list_has_real_time_task(
+    task_control_block tcb_list[], int tcb_list_length, 
+    int task_id_list[], int task_id_list_length)
+	{
+   		int id_index; 
+    	int task_id; 
+    	int real_time_task_found = 0; 
+ 
+    	for (id_index = 0; id_index < task_id_list_length; id_index++) 
+    	{
+        	task_id = task_id_list[id_index];
+        	if (task_id != TASK_ID_INVALID)
+        	{
+            	if (tcb_is_valid(&tcb_list[task_id]))
+            	{
+                	if (!real_time_task_found)
+                	{
+                    	real_time_task_found = 
+                    	tcb_is_real_time_task(&tcb_list[task_id]); 
+                	}
+            	}
+        	}
+    	}
+    return real_time_task_found; 
 }
 

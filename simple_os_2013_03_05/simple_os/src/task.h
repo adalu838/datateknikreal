@@ -43,6 +43,10 @@ void task_start(int task_id);
 
 /* task_switch: switches from task task_id_old to 
    task task_id_new */ 
-void task_switch(int task_id_old, int task_id_new); 
+void task_switch(int task_id_old, int task_id_new);
+
+/* a function to store the task id 
+   of the idle task */ 
+void task_set_idle_task(int task_id);
 
 #endif

@@ -32,6 +32,9 @@
 /* the running task */ 
 static int Task_Id_Running; 
 
+/* the idle task */ 
+static int Task_Id_Idle; 
+
 void task_init(void)
 {
     /* initialise list of all TCBs */ 
@@ -217,4 +220,11 @@ void task_switch(int task_id_old, int task_id_new)
     context_switch(old_stack_pointer, new_stack_pointer);
 /* fig_end task_switch_soft_kernel */ 
 #endif
+}
+
+/* a function to store the task id 
+   of the idle task */ 
+void task_set_idle_task(int task_id)
+{
+    Task_Id_Idle = task_id; 
 }
