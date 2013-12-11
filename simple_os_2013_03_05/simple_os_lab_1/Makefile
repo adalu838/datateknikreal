@@ -223,7 +223,7 @@ ASM_FLAGS_arm_bb =-mcpu=cortex-a8 --defsym BUILD_ARM_BB=1
 
 C_FLAGS_arm_bb =-c -mcpu=cortex-a8 -Wall -DBUILD_ARM_BB
 
-./obj/tcb_message_arm_bb.o: ./src/tcb_message.c ./src/tcb_message.h ./src/task_message.h ./src/task_id_list.h ./src/wait_list.h ./src/ready_list.h ./src/schedule.h ./src/task_message.h ./src/tcb_storage.h ./src/tcb.h ./src/arch_types.h
+./obj/tcb_message_arm_bb.o: ./src/task_message.h ./src/task_id_list.h ./src/wait_list.h ./src/ready_list.h ./src/schedule.h ./src/task_message.h ./src/tcb_storage.h ./src/tcb.h ./src/arch_types.h
 	arm-none-eabi-gcc $(C_FLAGS_arm_bb) $< -o $@ $(INCLUDE_DIR_FLAGS_arm_bb)
 
 ./obj/si_string_lib_arm_bb.o: ./src/si_string_lib.c ./src/si_string_lib.h 

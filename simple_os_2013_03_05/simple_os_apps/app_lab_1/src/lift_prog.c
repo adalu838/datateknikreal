@@ -11,7 +11,6 @@ ese
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "lift.h"
 #include "draw.h"
 
@@ -42,11 +41,28 @@ int id_to_task_id(int id)
     return id + TASK_ID_FIRST_PERSON; 
 }
 
-/* creates random level */
-int random_level(void)
+/* tasks */ 
+
+/* task for each passenger */
+void passenger_task(void)
 {
-    /* return random number between 0 and N_FLOORS-1 */
-    return rand() % N_FLOORS;
+	int id, length, send_task_id, n_travels = 0;	
+
+	si_message_receive((char *) &id, &length, &send_task_id); 
+
+	while(n_travels < 2)
+	{
+		int from_floor = 0;
+		int to_floor = 3;
+		
+		/* make the journey */
+		lift_travel(lift, id, from_floor, to_floor);
+		
+		n_travels++; 
+
+        /* sleep for a while */
+        si_wait_n_ms(5000); 
+	}
 }
 
 /* create_passenger: create a person task */ 
@@ -62,43 +78,10 @@ void create_passenger(int id, int priority)
     si_message_send((char *) &id, sizeof(int), task_id); 
 }
 
-/* tasks */ 
-
-/* task for each passenger */
-void passenger_task(void)
-{
-	int id, length, send_task_id, n_travels = 0;	
-
-	si_message_receive((char *) &id, &length, &send_task_id); 
-
-	while(n_travels < 2)
-	{
-		int from_floor = random_level();
-		int to_floor;
-		
-		/* compute floors for the travel */
-        do
-        {
-            from_floor = random_level();
-            to_floor = random_level();
-        } while (to_floor == from_floor);
-		
-		/* make the journey */
-		lift_travel(lift, id, from_floor, to_floor);
-		
-		n_travels++; 
-
-        /* sleep for a while */
-        si_wait_n_ms(5000); 
-	}
-}
-
 /* task for the lift */
 void lift_task(void)
 {
 	int next_floor, change_direction;
-    
-	lift = lift_create();
 
 	draw_lift(lift);
 
@@ -126,7 +109,7 @@ void user_task(void)
 		/* read a message */ 
         si_ui_receive(message); 
 
-        if (strcmp(message,"new") == 0)
+        if (si_string_compare(message,"new") == 0)
         {
 			
 			if (n_persons < MAX_N_PERSONS)
@@ -142,9 +125,9 @@ void user_task(void)
         }
 
 		/* check if it is an exit message */
-        else if (strcmp(message, "exit") == 0)
+        else if (si_string_compare(message, "exit") == 0)
         {
-        	exit(0);
+        	//Här ska det avslutas
 		}
                 
     	else
@@ -166,6 +149,12 @@ int main(void)
     
     /* initialise UI channel */ 
     si_ui_init(); 
+
+	/* create lift */ 
+	lift = lift_create();
+	
+	/* init lift */
+	init_lift(&lift);
 
     /* create tasks */ 
     si_task_create(lift_task, &Lift_Stack[STACK_SIZE-1], 30); 

@@ -10,14 +10,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* panic function, to be called when fatal errors occur */ 
+/* panic function, to be called when fatal errors occur  
 static void lift_panic(const char message[])
 {
     printf("LIFT_PANIC!!! "); 
     printf("%s", message); 
     printf("\n"); 
     exit(0); 
-}
+}*/
 
 /* --- monitor data type for lift and operations for create and delete START --- */
 
@@ -32,20 +32,6 @@ lift_type lift_create(void)
 
     /* loop counter */
     int i;
-
-    /* allocate memory */
-    lift = (lift_type) malloc(sizeof(lift_data_type));
-
-    /* initialise variables */
-
-    /* initialise floor */
-    lift->floor = 0; 
-    
-    /* set direction of lift travel to up */
-    lift->up = 1;
-
-    /* the lift is not moving */ 
-    lift->moving = 0; 
 
     /* initialise person information */
     for (floor = 0; floor < N_FLOORS; floor++)
@@ -71,10 +57,31 @@ lift_type lift_create(void)
     return lift;
 }
 
+void init_lift(lift_type lift)
+{
+    /* initialise variables */
+	
+	/* start writing at first position */ 
+    lift->in_pos = 0;
+    /* start reading at first position */ 
+    lift->out_pos = 0;
+    /* no elements are stored in the buffer */ 
+    lift->count = 0; 
+	
+    /* initialise floor */
+    lift->floor = 0; 
+    
+    /* set direction of lift travel to up */
+    lift->up = 1;
+
+    /* the lift is not moving */ 
+    lift->moving = 0; 
+}
+
 /* lift_delete: deallocates memory for lift */
 void lift_delete(lift_type lift)
 {
-    free(lift);
+  //Här ska minne frigöras
 }
 
 
@@ -220,7 +227,7 @@ void enter_floor(lift_type lift, int id, int floor)
         
     if (!found)
     {
-        lift_panic("cannot enter floor"); 
+        //lift_panic("cannot enter floor"); 
     }
 
     /* enter floor at index floor_index */ 
@@ -249,7 +256,7 @@ void leave_floor(lift_type lift, int id, int enter_floor)
         
     if (!found)
     {
-        lift_panic("cannot leave floor"); 
+        //lift_panic("cannot leave floor"); 
     }
 
     /* leave floor at index floor_index */ 

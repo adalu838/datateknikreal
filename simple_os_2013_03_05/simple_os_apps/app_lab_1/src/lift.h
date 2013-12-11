@@ -12,6 +12,11 @@
 
 /* maximum number of passengers in lift */ 
 #define MAX_N_PASSENGERS 5
+
+/* special numbers, to define no identity and no destination */ 
+#define NO_ID -1
+#define NO_FLOOR -1
+
 /* fig_end lift_h_defs */ 
 
 /* fig_begin person_data_type */ 
@@ -26,13 +31,8 @@ typedef struct
 } person_data_type; 
 /* fig_end person_data_type */ 
 
-/* special numbers, to define no identity and no destination */ 
-#define NO_ID -1
-#define NO_FLOOR -1
-
 /* fig_begin lift_mon_type */ 
 /* definition of monitor data type for lift */
-
 typedef struct
 {
     /* the floor where the lift is positioned */ 
@@ -45,6 +45,13 @@ typedef struct
        direction, which is defined as the direction where the 
        floor number is increasing */
     int up;
+	
+	/* start writing at first position */ 
+	int in_pos;
+    /* start reading at first position */ 
+    int out_pos;
+    /* no elements are stored in the buffer */ 
+    int count;
 
     /* persons on each floor waiting to enter */ 
     person_data_type persons_to_enter[N_FLOORS][MAX_N_PERSONS];
