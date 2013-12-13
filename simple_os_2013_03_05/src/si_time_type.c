@@ -18,34 +18,28 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef TASK_H
-#define TASK_H
+#include "si_time_type.h"
 
-#include "arch_types.h"
+void si_time_set(si_time *time, int n_sec, int n_ms)
+{
+    time->n_sec = n_sec; 
+    time->n_ms = n_ms; 
+}
 
-/* task_init: intialise the task module */ 
-void task_init(void); 
+void si_time_add_n_ms(si_time *time, int n_ms)
+{
+    time->n_ms += n_ms; 
+    time->n_sec += time->n_ms / 1000; 
+    time->n_ms = time->n_ms % 1000; 
+}
 
-/* task_create: creates a task from the function 
-   task_function, associates a stack with bottom stack_bottom 
-   to the task, and sets the priority to priority. 
-   The task_id of the created task is returned. */ 
-int task_create(
-    void (*task_function)(void), 
-    stack_item *stack_bottom, int priority);
+void si_time_add_n_sec(si_time *time, int n_sec)
+{
+    time->n_sec += n_sec; 
+}
 
-/* task_delete: */ 
-void task_delete(void); 
+int si_time_diff_n_ms(si_time *time_1, si_time *time_2)
+{
+    return (time_1->n_sec - time_2->n_sec)*1000 + time_1->n_ms - time_2->n_ms; 
+}
 
-/* task_get_task_id_running: returns the task id of the 
-   running task */ 
-int task_get_task_id_running(); 
-
-/* task_start: starts task task_id */ 
-void task_start(int task_id); 
-
-/* task_switch: switches from task task_id_old to 
-   task task_id_new */ 
-void task_switch(int task_id_old, int task_id_new); 
-
-#endif

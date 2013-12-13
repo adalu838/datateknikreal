@@ -158,7 +158,7 @@ int tcb_list_get_task_id_highest_prio_not_quantum(
     /* set to true if no valid task_id and TCB are found */ 
     int no_valid_task_id_tcb = 1; 
  
-	/* check if TS tasks exceeded quantum, if so reset run_time */
+	/* check if all TS tasks exceeded quantum, if so reset run_time */
 	if (!tcb_list_check_ts_all_quantum(tcb_list, tcb_list_length, task_id_list, task_id_list_length))
 	{
 		tcb_list_reset_run_time(tcb_list, tcb_list_length, task_id_list, task_id_list_length);
@@ -181,10 +181,10 @@ int tcb_list_get_task_id_highest_prio_not_quantum(
                 {
                     no_valid_task_id_tcb = 0; 
                 }
-                /* get the priority */ 
+                /* get the priority and run time*/ 
                 current_priority = tcb_list[current_task_id].priority;
 				run_time = tcb_list[current_task_id].run_ticks;
-                /* compare */ 
+                /* compare priority and run time*/ 
                 if (current_priority < min_priority_value && run_time < MAX_RUN_TICKS)
                 {
                     /* a new minumun value is found */ 
@@ -264,13 +264,14 @@ void tcb_list_increment_run_timer(task_control_block tcb_list[], int tcb_list_le
 
 	/* get the task_id */ 
     current_task_id = task_get_task_id_running();
+	
     /* check if valid task_id */  
-
     if (current_task_id != TASK_ID_INVALID)
     {
     	/* check if valid tcb */   
         if (tcb_is_valid(&tcb_list[current_task_id]))
-        {
+        {	
+			/* increment run timer */
         	tcb_list[current_task_id].run_ticks++;
       	}
 	}
@@ -283,14 +284,17 @@ int tcb_list_has_real_time_task(
    		int id_index; 
     	int task_id; 
     	int real_time_task_found = 0; 
- 
+		
+		/* iterate through the task id list */
     	for (id_index = 0; id_index < task_id_list_length; id_index++) 
     	{
         	task_id = task_id_list[id_index];
+			/* check if valid id */
         	if (task_id != TASK_ID_INVALID)
         	{
             	if (tcb_is_valid(&tcb_list[task_id]))
-            	{
+            	{	
+					/* check if real time task, if so return true */
                 	if (!real_time_task_found)
                 	{
                     	real_time_task_found = 
@@ -310,15 +314,19 @@ int tcb_list_check_ts_all_quantum(
 	int task_id; 
     int quantum_time_shared_task_found = 0; 
  
+	/* iterate through the task id list */
     for (id_index = 1; id_index < task_id_list_length; id_index++) 
     {
 		task_id = task_id_list[id_index];
+		/* ignore the real time tasks */
 		if (!tcb_is_real_time_task(&tcb_list[task_id]))
 		{
+			/* check if valid id */
 			if (task_id != TASK_ID_INVALID)
 			{
 				if (tcb_is_valid(&tcb_list[task_id]))
 				{
+					/* check if run time exceeded quantum time */
 					if (tcb_list[task_id].run_ticks < MAX_RUN_TICKS)
 					{
 						quantum_time_shared_task_found++;
@@ -327,6 +335,7 @@ int tcb_list_check_ts_all_quantum(
 			}
 		}
     }
+	/* return number of ts tasks that have not exceeded quantum time */
     return quantum_time_shared_task_found; 
 }
 
@@ -336,15 +345,19 @@ void tcb_list_reset_run_time(
 {
 	int id_index; 
 	int task_id; 
+	/* iterate through the task id list */
 	for (id_index = 0; id_index < task_id_list_length; id_index++) 
 	{
 		task_id = task_id_list[id_index];
+		/* ignore the real time tasks */
 		if (!tcb_is_real_time_task(&tcb_list[task_id]))
 		{
+			/* check if valid id */
 			if (task_id != TASK_ID_INVALID)
 			{
 				if (tcb_is_valid(&tcb_list[task_id]))
-				{
+				{	
+					/* reset run time for ts tasks */
 					tcb_list[task_id].run_ticks = 0;
 				}	
 			}

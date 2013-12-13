@@ -18,34 +18,45 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef TASK_H
-#define TASK_H
+#include "time_storage.h"
 
-#include "arch_types.h"
+#include "si_time_type.h"
 
-/* task_init: intialise the task module */ 
-void task_init(void); 
+static int Ms_Per_Tick = 1; 
 
-/* task_create: creates a task from the function 
-   task_function, associates a stack with bottom stack_bottom 
-   to the task, and sets the priority to priority. 
-   The task_id of the created task is returned. */ 
-int task_create(
-    void (*task_function)(void), 
-    stack_item *stack_bottom, int priority);
+static si_time Current_Time; 
 
-/* task_delete: */ 
-void task_delete(void); 
+static int N_Ticks = 0; 
 
-/* task_get_task_id_running: returns the task id of the 
-   running task */ 
-int task_get_task_id_running(); 
+#define MAX_N_TICKS 0x8FFFFFFF
 
-/* task_start: starts task task_id */ 
-void task_start(int task_id); 
+void time_storage_set_ms_per_tick(int ms_per_tick)
+{
+    Ms_Per_Tick = ms_per_tick; 
+}
 
-/* task_switch: switches from task task_id_old to 
-   task task_id_new */ 
-void task_switch(int task_id_old, int task_id_new); 
+int time_storage_get_ms_per_tick(void)
+{
+    return Ms_Per_Tick; 
+}
 
-#endif
+void time_storage_register_tick(void)
+{
+    N_Ticks++; 
+    if (N_Ticks == MAX_N_TICKS)
+    {
+	N_Ticks = 0; 
+    }
+    si_time_add_n_ms(&Current_Time, Ms_Per_Tick); 
+}
+
+void time_storage_get_current_time(si_time *time)
+{
+    *time = Current_Time; 
+}
+
+void time_storage_init(void)
+{
+    si_time_set(&Current_Time, 0, 0); 
+}
+

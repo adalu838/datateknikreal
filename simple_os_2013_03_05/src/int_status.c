@@ -18,34 +18,50 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef TASK_H
-#define TASK_H
+#include "int_status.h"
 
-#include "arch_types.h"
+#include "console.h"
 
-/* task_init: intialise the task module */ 
-void task_init(void); 
+/* saved value of esp */ 
+static int Saved_Stack_Pointer; 
 
-/* task_create: creates a task from the function 
-   task_function, associates a stack with bottom stack_bottom 
-   to the task, and sets the priority to priority. 
-   The task_id of the created task is returned. */ 
-int task_create(
-    void (*task_function)(void), 
-    stack_item *stack_bottom, int priority);
+/* interrupt active flag */ 
+static int Interrupt_Active; 
 
-/* task_delete: */ 
-void task_delete(void); 
+void int_status_init(void)
+{
+    Saved_Stack_Pointer = 0; 
+    Interrupt_Active = 0; 
+}
 
-/* task_get_task_id_running: returns the task id of the 
-   running task */ 
-int task_get_task_id_running(); 
+void int_status_save_stack_pointer(int esp)
+{
+    Saved_Stack_Pointer = esp; 
+}
 
-/* task_start: starts task task_id */ 
-void task_start(int task_id); 
-
-/* task_switch: switches from task task_id_old to 
-   task task_id_new */ 
-void task_switch(int task_id_old, int task_id_new); 
-
+int int_status_get_saved_stack_pointer(void)
+{
+    // console_put_string("RETURning sp: "); 
+    // console_put_hex(Saved_Stack_Pointer); 
+    // console_put_string("SAVED sp: "); 
+    // console_put_hex(Saved_Stack_Pointer); 
+#ifdef BUILD_ARM_BB
+    // console_put_mem(Saved_Stack_Pointer); 
 #endif
+    return Saved_Stack_Pointer; 
+}
+
+void int_status_set_interrupt_active(void)
+{
+    Interrupt_Active = 1; 
+}
+
+void int_status_clear_interrupt_active(void)
+{
+    Interrupt_Active = 0; 
+}
+
+int int_status_is_interrupt_active(void)
+{
+    return Interrupt_Active; 
+}

@@ -40,7 +40,9 @@ void ready_list_init(void)
 
 void ready_list_insert(int task_id)
 {
-    task_id_list_insert(Ready_List, READY_LIST_SIZE, task_id);
+    task_id_list_insert(Ready_List, READY_LIST_SIZE, task_id); 
+    // console_put_string("ready_inserted "); 
+    // console_put_hex(task_id); 
 }
 
 int ready_list_get_task_id_highest_prio(void)
@@ -64,46 +66,9 @@ int ready_list_get_task_id_highest_prio(void)
     return task_id_highest_prio;
 }
 
-int ready_list_get_task_id_highest_prio_not_quantum(void)
-{
-	/* a pointer to a TCB, to be used as a pointer
-    to the common TCB list */
-    task_control_block *tcb_list_ref;
-
-    /* task_id for task with highest priority */
-    int task_id_highest_prio;
-
-    /* get a pointer to the common TCB list */
-    tcb_list_ref = tcb_storage_get_tcb_list_ref();
-
-    /* get task_id for task with highest priority, a quantum check is also performed */
-    task_id_highest_prio = tcb_list_get_task_id_highest_prio_not_quantum(
-        tcb_list_ref, tcb_storage_get_tcb_list_size(),
-        Ready_List, READY_LIST_SIZE);
-
-    /* return the task_id */
-    return task_id_highest_prio;
-}
-
 void ready_list_remove(int task_id)
 {
     task_id_list_remove(Ready_List, READY_LIST_SIZE, task_id); 
 }
 
-int ready_list_has_real_time_task(void)
-{
-    /* a pointer to a TCB, to be used as a pointer
-       to the common TCB list */
-    task_control_block *tcb_list_ref;
 
-    int has_real_time_task; 
- 
-    /* get a pointer to the common TCB list */
-    tcb_list_ref = tcb_storage_get_tcb_list_ref();
-
-    has_real_time_task = tcb_list_has_real_time_task(
-        tcb_list_ref, tcb_storage_get_tcb_list_size(),
-        Ready_List, READY_LIST_SIZE);
-
-    return has_real_time_task; 
-}

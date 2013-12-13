@@ -33,7 +33,9 @@ stack_item Passenger_Stack[MAX_N_PERSONS][STACK_SIZE];
 
 /* Init lift */
 lift_type lift;
+lift_data_type morr;
 
+int n_persons = 0;
 
 /* sets task id to passenger */
 int id_to_task_id(int id)
@@ -61,16 +63,22 @@ void passenger_task(void)
 		n_travels++; 
 
         /* sleep for a while */
-        si_wait_n_ms(5000); 
+		if (n_travels < 1)
+		{
+        	si_wait_n_ms(5000);
+		}
 	}
+	n_persons = n_persons - 1;
 }
 
 /* create_passenger: create a person task */ 
 void create_passenger(int id, int priority) 
 {
-    int task_id; 
+    int task_id;
 
+	//task_id = id_to_task_id(id);
     /* create task */ 
+
     task_id = si_task_create_task_id(
         passenger_task, &Passenger_Stack[id][STACK_SIZE - 1], priority);
 
@@ -97,9 +105,9 @@ void lift_task(void)
 void user_task(void)
 {
 
+	int n_index = 0;
 	/* message array */ 
     char message[SI_UI_MAX_MESSAGE_SIZE];
-	int n_persons = 0;
 
     /* set size of GUI window */ 
     si_ui_set_size(670, 700);
@@ -114,8 +122,14 @@ void user_task(void)
 			
 			if (n_persons < MAX_N_PERSONS)
 			{
-				create_passenger(id_to_task_id(n_persons), 10 + n_persons);
+				
+				create_passenger(n_index, 10 + n_index);
 				n_persons = n_persons + 1;
+				n_index = n_index + 1;
+				if (n_index > 9)
+				{
+					n_index = 0;
+				}
 			}
 			else
 			{
@@ -151,10 +165,9 @@ int main(void)
     si_ui_init(); 
 
 	/* create lift */ 
-	lift = lift_create();
-	
-	/* init lift */
-	init_lift(&lift);
+	lift = &morr;
+
+	init_lift(lift);
 
     /* create tasks */ 
     si_task_create(lift_task, &Lift_Stack[STACK_SIZE-1], 30); 

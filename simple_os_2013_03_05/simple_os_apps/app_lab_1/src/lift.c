@@ -21,41 +21,7 @@ static void lift_panic(const char message[])
 
 /* --- monitor data type for lift and operations for create and delete START --- */
 
-/* lift_create: creates and initialises a variable of type lift_type */
-lift_type lift_create(void) 
-{
-    /* the lift to be initialised */
-    lift_type lift;
 
-    /* floor counter */ 
-    int floor; 
-
-    /* loop counter */
-    int i;
-
-    /* initialise person information */
-    for (floor = 0; floor < N_FLOORS; floor++)
-    {
-        for (i = 0; i < MAX_N_PERSONS; i++)
-        {
-            lift->persons_to_enter[floor][i].id = NO_ID; 
-            lift->persons_to_enter[floor][i].to_floor = NO_FLOOR; 
-        }
-    }
-
-    /* initialise passenger information */
-    for (i = 0; i < MAX_N_PASSENGERS; i++) 
-    {
-        lift->passengers_in_lift[i].id = NO_ID; 
-        lift->passengers_in_lift[i].to_floor = NO_FLOOR; 
-    }
-
-    /* initialise semaphore and event variable */
-    si_sem_init(&lift->mutex, 1); 
-    si_cv_init(&lift->change, &lift->mutex); 
-
-    return lift;
-}
 
 void init_lift(lift_type lift)
 {
@@ -76,6 +42,34 @@ void init_lift(lift_type lift)
 
     /* the lift is not moving */ 
     lift->moving = 0; 
+
+	/* loop counter */
+    int i;
+
+    /* floor counter */ 
+    int floor; 
+
+    /* initialise person information */
+    for (floor = 0; floor < N_FLOORS; floor++)
+    {
+        for (i = 0; i < MAX_N_PERSONS; i++)
+        {
+            lift->persons_to_enter[floor][i].id = NO_ID; 
+            lift->persons_to_enter[floor][i].to_floor = NO_FLOOR; 
+        }
+    }
+	
+    /* initialise passenger information */
+    for (i = 0; i < MAX_N_PASSENGERS; i++) 
+    {
+        lift->passengers_in_lift[i].id = NO_ID; 
+        lift->passengers_in_lift[i].to_floor = NO_FLOOR; 
+    }
+
+    /* initialise semaphore and event variable */
+    si_sem_init(&lift->mutex, 1); 
+    si_cv_init(&lift->change, &lift->mutex); 
+
 }
 
 /* lift_delete: deallocates memory for lift */

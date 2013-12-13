@@ -18,34 +18,39 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef TASK_H
-#define TASK_H
+#include "tcb_storage.h"
 
-#include "arch_types.h"
+#include "tcb.h"
+#include "tcb_list.h"
 
-/* task_init: intialise the task module */ 
-void task_init(void); 
+/* fig_begin tcb_list */ 
+/* the list of TCBs for all created tasks */ 
+static task_control_block TCB_List[TCB_LIST_SIZE]; 
+/* fig_end tcb_list */ 
 
-/* task_create: creates a task from the function 
-   task_function, associates a stack with bottom stack_bottom 
-   to the task, and sets the priority to priority. 
-   The task_id of the created task is returned. */ 
-int task_create(
-    void (*task_function)(void), 
-    stack_item *stack_bottom, int priority);
+void tcb_storage_init(void)
+{
+    tcb_list_reset(TCB_List, TCB_LIST_SIZE); 
+}
 
-/* task_delete: */ 
-void task_delete(void); 
+int tcb_storage_install_tcb(task_control_block tcb)
+{
+    return tcb_list_insert(TCB_List, TCB_LIST_SIZE, tcb); 
+}
 
-/* task_get_task_id_running: returns the task id of the 
-   running task */ 
-int task_get_task_id_running(); 
+task_control_block *tcb_storage_get_tcb_ref(int task_id) 
+{
+    return &TCB_List[task_id]; 
+}
 
-/* task_start: starts task task_id */ 
-void task_start(int task_id); 
+task_control_block *tcb_storage_get_tcb_list_ref(void)
+{
+    return &TCB_List[0]; 
+}
 
-/* task_switch: switches from task task_id_old to 
-   task task_id_new */ 
-void task_switch(int task_id_old, int task_id_new); 
+int tcb_storage_get_tcb_list_size(void)
+{
+    return TCB_LIST_SIZE; 
+}
 
-#endif
+

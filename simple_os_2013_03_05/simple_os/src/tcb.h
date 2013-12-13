@@ -29,7 +29,7 @@ otherwise they are considered as
 real-time tasks */
 #define TIME_SHARED_PRIORITY_BASE 20
 
-/* maximum ticks a time-shared task is allowed 
+/* quantum ticks a time-shared task is allowed 
    to run in one go */ 
 #define MAX_RUN_TICKS 100
 

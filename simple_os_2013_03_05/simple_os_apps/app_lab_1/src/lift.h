@@ -71,7 +71,9 @@ typedef lift_data_type* lift_type;
 /* fig_end lift_mon_type */ 
 
 /* lift_create: creates and initialises a variable of type lift_type */
-lift_type lift_create(void); 
+//lift_type lift_create(void); 
+
+void init_lift(lift_type lift);
 
 /* lift_delete: deallocates memory for lift */
 void lift_delete(lift_type lift); 

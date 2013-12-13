@@ -83,10 +83,7 @@ static void prepare_stack(
     for (i = 0; i < n_saved_registers; i++)
     {
         stack_ref--; 
-		if (i==0)
-		  *stack_ref = (stack_item) task_delete;
-        else
-          *stack_ref = 0; 
+        *stack_ref = 0; 
     }
 /* fig_end prepare_stack_code_arm */ 
     *sp = (mem_address) stack; 
@@ -168,17 +165,6 @@ void task_start(int task_id)
     context_restore(tcb_ref->stack_pointer); 
 }
 /* fig_end task_start */ 
-
-void task_delete(void)
-{
-	int id_current = task_get_task_id_running();
-	ready_list_remove(id_current);
-
-	tcb_reset(tcb_storage_get_tcb_ref(id_current));	
-	
-	int id_next = ready_list_get_task_id_highest_prio();
-	task_start(id_next);
-}
 
 /* fig_begin task_switch_soft_kernel */ 
 void task_switch(int task_id_old, int task_id_new)

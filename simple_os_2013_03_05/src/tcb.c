@@ -18,34 +18,44 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef TASK_H
-#define TASK_H
+#include "tcb.h"
 
-#include "arch_types.h"
+#include "console.h"
 
-/* task_init: intialise the task module */ 
-void task_init(void); 
+void tcb_reset(task_control_block *tcb)
+{
+    /* set all fields to zero */ 
+    tcb->stack_pointer = 0; 
+    tcb->task_id = 0; 
+    tcb->valid = 0;
+    tcb->wait_ticks = 0; 
+    tcb->priority = 0; 
+}
 
-/* task_create: creates a task from the function 
-   task_function, associates a stack with bottom stack_bottom 
-   to the task, and sets the priority to priority. 
-   The task_id of the created task is returned. */ 
-int task_create(
-    void (*task_function)(void), 
-    stack_item *stack_bottom, int priority);
+void tcb_init(
+    task_control_block *tcb, mem_address stack_pointer, int priority)
+{
+    tcb_reset(tcb); 
+    tcb->stack_pointer = stack_pointer; 
+    tcb->priority = priority; 
+}
 
-/* task_delete: */ 
-void task_delete(void); 
+int tcb_is_valid(task_control_block *tcb)
+{
+    return tcb->valid; 
+}
 
-/* task_get_task_id_running: returns the task id of the 
-   running task */ 
-int task_get_task_id_running(); 
+void tcb_set_valid(task_control_block *tcb)
+{
+    tcb->valid = 1; 
+}
 
-/* task_start: starts task task_id */ 
-void task_start(int task_id); 
+void tcb_set_task_id(task_control_block *tcb, int task_id)
+{
+    tcb->task_id = task_id; 
+}
 
-/* task_switch: switches from task task_id_old to 
-   task task_id_new */ 
-void task_switch(int task_id_old, int task_id_new); 
-
-#endif
+void tcb_set_wait_ticks(task_control_block *tcb, int wait_ticks)
+{
+    tcb->wait_ticks = wait_ticks; 
+}
